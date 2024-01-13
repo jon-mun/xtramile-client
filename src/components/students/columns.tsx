@@ -16,6 +16,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "./column-header";
 import { UpdateFormDialog } from "./update-form-dialog";
+import { DeleteDialog } from "./delete-dialog";
 
 export const columns: ColumnDef<Student>[] = [
   {
@@ -64,7 +65,11 @@ export const columns: ColumnDef<Student>[] = [
       const student = row.original;
 
       return (
-        <DropdownMenu>
+        <DropdownMenu
+          onOpenChange={() => {
+            row.toggleSelected();
+          }}
+        >
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
@@ -88,6 +93,14 @@ export const columns: ColumnDef<Student>[] = [
               }}
             >
               <UpdateFormDialog student={student} />
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <DeleteDialog student={student} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
