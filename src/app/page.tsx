@@ -7,7 +7,7 @@ import { columns } from "@/components/students/columns";
 
 export default function DemoPage() {
   const { data: students, isLoading } = useQuery({
-    queryKey: "students",
+    queryKey: ["students"],
     queryFn: getStudents,
   });
 

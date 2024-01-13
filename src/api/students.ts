@@ -15,3 +15,7 @@ export async function getStudents() {
 export function getStudent(nim: string) {
   return api.get<Student>(routes.getStudent(nim));
 }
+
+export function createStudent(student: StudentInputs) {
+  return api.post(routes.createStudent(), student);
+}
