@@ -18,34 +18,50 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "../ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import React from "react";
-import { createStudent } from "@/api/students";
-import { useMutation, useQueryClient } from "react-query";
+import { createStudent, getStudent, updateStudent } from "@/api/students";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useToast } from "../ui/use-toast";
+import LoadingSpinner from "../ui/loading-spinner";
 
-export function FormDialog() {
+export function UpdateFormDialog(props: { student: Student }) {
   const { toast, dismiss } = useToast();
   const [date, setDate] = React.useState<Date>();
   const [open, setOpen] = React.useState(false);
 
+  const { data: fetchedStudent, isLoading: isQueryLoading } = useQuery({
+    queryKey: ["student", props.student.nim],
+    queryFn: () => getStudent(props.student.nim),
+    retry: false,
+    onSuccess: (data) => {
+      setDate(new Date(data.dob));
+      reset({
+        id: data.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        dob: data.dob,
+      });
+    },
+  });
+
   const { handleSubmit, control, reset } = useForm<StudentInputs>({
     defaultValues: {
-      id: "",
-      firstName: "",
-      lastName: "",
-      dob: "",
+      id: fetchedStudent?.id,
+      firstName: fetchedStudent?.firstName,
+      lastName: fetchedStudent?.lastName,
+      dob: fetchedStudent?.dob,
     },
   });
 
   const queryClient = useQueryClient();
-  const { mutateAsync, isLoading } = useMutation(
+  const { mutateAsync, isLoading: isMutateLoading } = useMutation(
     async (data: StudentInputs) => {
-      return await createStudent(data);
+      return await updateStudent(props.student.nim, data);
     },
     {
       onSuccess: () => {
         toast({
-          title: "Student created",
-          description: "Student has been created successfully.",
+          title: "Student updated",
+          description: `Student ${props.student.nim} has been updated.`,
         });
       },
       onError: (error) => {
@@ -67,11 +83,12 @@ export function FormDialog() {
     }
   );
 
+  const isLoading = isQueryLoading || isMutateLoading;
+
   const onSubmit: SubmitHandler<StudentInputs> = (data) => {
     if (!date) {
       return;
     }
-
     const convertedDate = format(date, "yyyy-MM-dd");
 
     const student = {
@@ -88,12 +105,12 @@ export function FormDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Add Student</Button>
+        <p>Edit student details</p>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Add Student</DialogTitle>
+            <DialogTitle>Edit Student</DialogTitle>
             <DialogDescription>Insert student data here.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -109,8 +126,7 @@ export function FormDialog() {
                     id="id"
                     placeholder="21481250PA20950"
                     className="col-span-3"
-                    disabled={isLoading}
-                    required
+                    disabled
                     {...field}
                   />
                 )}
@@ -183,7 +199,13 @@ export function FormDialog() {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save changes</Button>
+            <Button
+              onClick={() => {
+                handleSubmit(onSubmit)();
+              }}
+            >
+              Save changes
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

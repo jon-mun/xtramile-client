@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "./column-header";
+import { UpdateFormDialog } from "./update-form-dialog";
 
 export const columns: ColumnDef<Student>[] = [
   {
@@ -79,6 +80,15 @@ export const columns: ColumnDef<Student>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View student details</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                row.toggleSelected();
+              }}
+            >
+              <UpdateFormDialog student={student} />
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

@@ -12,10 +12,21 @@ export async function getStudents() {
   return students;
 }
 
-export function getStudent(nim: string) {
-  return api.get<Student>(routes.getStudent(nim));
+export async function getStudent(nim: string) {
+  const response = await api.get<StudentInputs>(routes.getStudent(nim));
+  const student = response.data;
+
+  return student;
 }
 
 export function createStudent(student: StudentInputs) {
   return api.post(routes.createStudent(), student);
+}
+
+export function updateStudent(nim: string, student: StudentInputs) {
+  return api.patch(routes.updateStudent(nim), student);
+}
+
+export function deleteStudent(nim: string) {
+  return api.delete(routes.deleteStudent(nim));
 }
