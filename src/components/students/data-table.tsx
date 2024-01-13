@@ -33,6 +33,7 @@ import {
 
 import React from "react";
 import { Input } from "@/components/ui/input";
+import { FormDialog } from "./form-dialog";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -108,6 +109,9 @@ export function DataTable<TData, TValue>({
               })}
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* <Button onClick={() => {}}>Add Student</Button> */}
+        <FormDialog />
       </div>
       <Table>
         <TableHeader>
