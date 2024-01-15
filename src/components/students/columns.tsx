@@ -83,9 +83,6 @@ export const columns: ColumnDef<Student>[] = [
             >
               Copy student ID
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View student details</DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={(e) => {
                 e.preventDefault();
