@@ -1,9 +1,19 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## TODO
-- [ ] Fix Date Picker
-- [ ] Implement Pagination
-- [ ] Implement Search Filter
+## Introduction
+This is the front end using an Next.js app (SPA framework) to consume the API from the Java Spring Boot [API](https://github.com/jon-mun/xtramile-server).
+
+## Documentation
+
+### Create
+![Create](./docs/create.gif)
+
+### Update
+![Update](./docs/edit.gif)
+
+### Delete
+![Delete](./docs/delete.gif)
+
 
 ## Getting Started
 
