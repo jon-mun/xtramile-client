@@ -10,21 +10,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { cn } from "@/lib/utils";
-import { Calendar } from "../ui/calendar";
-import { CalendarIcon } from "lucide-react";
 import React from "react";
 import { createStudent } from "@/api/students";
 import { useMutation, useQueryClient } from "react-query";
 import { useToast } from "../ui/use-toast";
+import { DateField } from "../ui/date-time-picker/date-field";
+import { CalendarDate } from "@internationalized/date";
 
 export function CreateFormDialog() {
   const { toast, dismiss } = useToast();
-  const [date, setDate] = React.useState<Date>();
+  const [date, setDate] = React.useState<CalendarDate>();
   const [open, setOpen] = React.useState(false);
 
   const { handleSubmit, control, reset } = useForm<StudentInputs>({
@@ -72,7 +70,10 @@ export function CreateFormDialog() {
       return;
     }
 
-    const convertedDate = format(date, "yyyy-MM-dd");
+    const convertedDate = format(
+      new Date(date.year, date.month - 1, date.day),
+      "yyyy-MM-dd"
+    );
 
     const student = {
       ...data,
@@ -157,29 +158,21 @@ export function CreateFormDialog() {
               <Label htmlFor="dateOfBirth" className="text-right">
                 Birth Date
               </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-[280px] justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
-                    )}
-                    disabled={isLoading}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <DateField
+                aria-label="Date of Birth"
+                isRequired
+                validate={(value) => {
+                  if (!value) {
+                    return "Date of Birth is required";
+                  }
+                  return null;
+                }}
+                onChange={(e) => {
+                  const calendarDate = new CalendarDate(e.year, e.month, e.day);
+                  setDate(calendarDate);
+                }}
+                value={date}
+              />
             </div>
           </div>
           <DialogFooter>

@@ -10,22 +10,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { cn } from "@/lib/utils";
-import { Calendar } from "../ui/calendar";
-import { CalendarIcon } from "lucide-react";
 import React from "react";
-import { createStudent, getStudent, updateStudent } from "@/api/students";
+import { getStudent, updateStudent } from "@/api/students";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useToast } from "../ui/use-toast";
-import LoadingSpinner from "../ui/loading-spinner";
+import { DateField } from "../ui/date-time-picker/date-field";
+import { DateValue } from "react-aria";
+import { CalendarDate } from "@internationalized/date";
 
 export function UpdateFormDialog(props: { student: Student }) {
   const { toast, dismiss } = useToast();
-  const [date, setDate] = React.useState<Date>();
+  const [date, setDate] = React.useState<CalendarDate>();
   const [open, setOpen] = React.useState(false);
 
   const { data: fetchedStudent, isLoading: isQueryLoading } = useQuery({
@@ -33,7 +31,13 @@ export function UpdateFormDialog(props: { student: Student }) {
     queryFn: () => getStudent(props.student.nim),
     retry: false,
     onSuccess: (data) => {
-      setDate(new Date(data.dob));
+      const dob = new Date(data.dob);
+      const calendarDate = new CalendarDate(
+        dob.getFullYear(),
+        dob.getMonth() + 1,
+        dob.getDate()
+      );
+      setDate(calendarDate);
       reset({
         id: data.id,
         firstName: data.firstName,
@@ -89,7 +93,12 @@ export function UpdateFormDialog(props: { student: Student }) {
     if (!date) {
       return;
     }
-    const convertedDate = format(date, "yyyy-MM-dd");
+    const convertedDate = format(
+      new Date(date.year, date.month - 1, date.day),
+      "yyyy-MM-dd"
+    );
+
+    console.log(convertedDate);
 
     const student = {
       ...data,
@@ -173,34 +182,27 @@ export function UpdateFormDialog(props: { student: Student }) {
               <Label htmlFor="dateOfBirth" className="text-right">
                 Birth Date
               </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-[280px] justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
-                    )}
-                    disabled={isLoading}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <DateField
+                aria-label="Date of Birth"
+                isRequired
+                validate={(value) => {
+                  if (!value) {
+                    return "Date of Birth is required";
+                  }
+                  return null;
+                }}
+                onChange={(e) => {
+                  const calendarDate = new CalendarDate(e.year, e.month, e.day);
+                  setDate(calendarDate);
+                }}
+                value={date}
+              />
             </div>
           </div>
           <DialogFooter>
             <Button
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 handleSubmit(onSubmit)();
               }}
             >
